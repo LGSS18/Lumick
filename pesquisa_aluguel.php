@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumick - Filmes</title>
+</head>
+<body>
+    <?php
+        session_start();
+    
+        if($_SESSION['log'] != "ativo"){
+            echo"<script language='javascript' type='text/javascript'>
+            alert('Precisa esta logado para acessar o conteúdo');
+            window.location.href='../naoentrou.php';</script>";
+        }
+    ?>
+
+    <h1> Lista dos filmes </h1>
+    <h3> Verificação do conteúdo </h3>
+    <hr>
+
+    <form action="cadastro.php" method="POST" name="cadastroprin">
+        <h1>cadastrar novo produto</h1>
+        <input type="submit" name="cadastrar" value="cadastrar">
+    </form>
+        
+    <form action="" method="POST" name="">
+        <h1>Busca por nome:</h1>
+        <input type="text" name="textobusca">
+        <input type="submit" name="buscar" value="Buscar">
+    </form>
+
+        <?php
+            require_once('conexao/conexao.php');
+
+            $mysql = new BancodeDados();
+            $mysql -> conecta();
+
+            if(isset($_POST['buscar']) && !empty($_POST['textobusca'])){
+
+                $pbusca = $_POST['textobusca'];
+                $sqlstring = "Select * from alugar where Status <> 'Oculto' and NomeUsuario Like '$pbusca%'";
+            }
+            else{
+                $sqlstring = "select * from alugar where Status <> 'Oculto' order by NomeUsuario";
+            }
+
+            $query = @mysqli_query($mysql->con, $sqlstring);
+
+            echo "<br>";
+
+            echo "<table border='1px'>";
+            echo "<tr><th width='30px' align='center'>Id</th>
+            <th width='100px'>Nome Cliente</th>
+            <th width='100px'>Nome Filme</th>
+            <th width='100px'>Status</th>
+            <th width='100px'>Deletar</th>
+            <th width='100px'>Alterar</th> </tr>";
+
+            while($dados = mysqli_fetch_array($query)){
+                echo "<tr>";
+                echo "<td align='center'>". $dados['Id']."</td>";
+                echo "<td align='center'><b>". $dados['NomeUsuario']."</b></td>";
+                echo "<td align='center'><b>". $dados['NomeFilme']."</b></td>";
+                echo "<td align='center'><b>". $dados['Status']."</b></td>";
+
+                $id = base64_encode($dados['Id']);
+
+                echo "</td> <td align='center'>
+                <a href='apagar_aluguel.php?id=".$id."'>
+                <img src='imagens/iconLixo.png' width='30px' height='30px'></a>";
+
+                echo "</td> <td align='center'>
+                <a href='alterar_aluguel.php?id=".$id."'>
+                <img src='imagens/iconLapis.png' width='30px' height='30px'></a>";
+
+                echo "</tr>";
+            }
+
+            echo "</table>";
+            $mysql -> fechar();
+
+        ?> 
+
+        <br><hr>
+        <form action="cadastro2.php" method="POST" name="cadastroprin">
+        <input type="submit" name="voltar" value="voltar">
+    </form>
+</body>
+</html>
